@@ -467,14 +467,14 @@ async def main():
             while any(press):
                 press = hub.buttons.pressed()
                 await wait(10)
-            hub.system.set_stop_button(Button.CENTER)
+            # hub.system.set_stop_button(Button.CENTER)
             hub.display.icon([[100,100,100,100,100,],
                               [100,  0,100,  0,100,],
                               [100,  0,100,  0,100,],
                               [100,100,100,100,100,],
                               [  0,100,  0,100,  0,],])
             await actions[cur]()
-            hub.system.set_stop_button(Button.BLUETOOTH)
+            # hub.system.set_stop_button(Button.BLUETOOTH)
         else:
             prev = False
         hub.display.number(cur)
