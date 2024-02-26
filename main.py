@@ -6,11 +6,11 @@ from pybricks.tools import wait, StopWatch, run_task, multitask
 # Oranžoví týpci: skoupi vlevo, skibi vlevo, bali vpravo
 
 hub = PrimeHub()
-hand = Motor(Port.E)
+hand = Motor(Port.C)
 util = Motor(Port.D)
 # belt = Motor(Port.C)
 left = Motor(Port.A, positive_direction=Direction.COUNTERCLOCKWISE)
-right = Motor(Port.C)
+right = Motor(Port.E)
 base = DriveBase(
     left,
     right,
