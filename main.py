@@ -430,7 +430,7 @@ async def run() -> None:
     pressed = []
     while not any(pressed):
         pressed = hub.buttons.pressed()
-        wait(10)
+        await wait(10)
 
 actions = [
     run,
@@ -451,13 +451,18 @@ actions = [
 async def main():
     hub.system.set_stop_button(Button.BLUETOOTH)
     cur = 0
+    prev = False
     while True:
         pressed = hub.buttons.pressed()
         if Button.LEFT in pressed:
-            cur = (cur - 1) % len(actions)
-        if Button.RIGHT in pressed:
-            cur = (cur + 1) % len(actions)
-        if Button.CENTER in pressed:
+            if not prev:
+                cur = (cur - 1) % len(actions)
+                prev = True
+        elif Button.RIGHT in pressed:
+            if not prev:
+                cur = (cur + 1) % len(actions)
+                prev = True
+        elif Button.CENTER in pressed:
             hub.system.set_stop_button(Button.CENTER)
             hub.display.icon([100,100,100,100,100,
                               100,  0,100,  0,100,
@@ -466,8 +471,10 @@ async def main():
                                 0,100,  0,100,  0,])
             await actions[cur]()
             hub.system.set_stop_button(Button.BLUETOOTH)
+        else:
+            prev = False
         hub.display.number(cur)
-        wait(10)
+        await wait(10)
 
 print('-----')
 run_task(main())
