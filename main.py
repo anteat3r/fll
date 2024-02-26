@@ -361,6 +361,8 @@ async def new_film_delivery():
 
 
 async def delivery():
+    await hand_goto(270)
+    wait_button()
     base.settings(straight_acceleration=800)
     await base.turn(3)
     await base.straight(450)
@@ -444,7 +446,6 @@ actions = [
     camera,
     artist,
     film_delivery,
-    lambda: hand_goto(270),
     delivery,
 ]
 
