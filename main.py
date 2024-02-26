@@ -463,6 +463,10 @@ async def main():
                 cur = (cur + 1) % len(actions)
                 prev = True
         elif Button.CENTER in pressed:
+            press = []
+            while any(press):
+                press = hub.buttons.pressed()
+                await wait(10)
             hub.system.set_stop_button(Button.CENTER)
             hub.display.icon([[100,100,100,100,100,],
                               [100,  0,100,  0,100,],
