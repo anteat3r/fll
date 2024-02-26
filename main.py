@@ -3,8 +3,18 @@ from pybricks.pupdevices import Motor, ColorSensor, UltrasonicSensor, ForceSenso
 from pybricks.parameters import Button, Color, Direction, Port, Side, Stop
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch, run_task, multitask
-import micropython
 # Oranžoví týpci: skoupi vlevo, skibi vlevo, bali vpravo
+
+
+
+
+
+# HIHIIHA
+
+
+
+
+
 hub = PrimeHub()
 hand = Motor(Port.E)
 util = Motor(Port.D)
@@ -36,6 +46,7 @@ async def hand_goto(ang, speed=10000, wait=True):
 def wait_button():
     while Button.LEFT not in hub.buttons.pressed():
         pass
+
 def wait_button2():
     while Button.RIGHT not in hub.buttons.pressed():
         pass
