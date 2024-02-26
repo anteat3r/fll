@@ -5,16 +5,6 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch, run_task, multitask
 # Oranžoví týpci: skoupi vlevo, skibi vlevo, bali vpravo
 
-
-
-
-
-# HIHIIHA
-
-
-
-
-
 hub = PrimeHub()
 hand = Motor(Port.E)
 util = Motor(Port.D)
@@ -412,7 +402,7 @@ async def delivery():
 
 def between(watch):
     base.stop()
-    base.reset()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+    base.reset()
     print(watch.time())
     wait_button()
  
@@ -421,50 +411,63 @@ def between2():
     base.reset()
     wait_button2() 
 
-async def main():
-    print(hub.battery.voltage())
-    hub.speaker.volume(100)
+async def run() -> None:
     await hub.speaker.beep(frequency=500, duration=100)
     await hand_goto(0)
     wait_button()
-    watch = StopWatch()
-    await boat()
-    between(watch)
-    await tower()
-    between(watch)
-    await volume()
-    between(watch)
-    await dragon()
-    between(watch)
-    await flower()
-    between(watch)
-    await skater()
-    between(watch)
-    await skater2()
-    between(watch)
-    await camera()
-    between(watch)
-    await podium()
-    between(watch)
-    await artist()
-    between(watch)
-    await film_delivery()
-    between(watch)
-    await hand_goto(270)
-    between(watch)
-    await delivery()
+    watch: StopWatch = None
+    for i, f in enumerate(actions[1:]):
+        if i == 0: watch = StopWatch()
+        await f()
     base.stop()
     base.reset()
     end = watch.time()
+    print(end)
     fin = round(end/1000)
     if fin > 99:
         fin -= 100
     hub.display.number(fin)
-    print(end)
-    # await wait(1000)
-    # wait_button()
+    pressed = []
+    while not any(pressed):
+        pressed = hub.buttons.pressed()
+        wait(10)
 
+actions = [
+    run,
+    boat,
+    tower,
+    volume,
+    dragon,
+    flower,
+    skater,
+    skater2,
+    camera,
+    artist,
+    film_delivery,
+    lambda: hand_goto(270),
+    delivery,
+]
 
+async def main():
+    hub.system.set_stop_button(Button.BLUETOOTH)
+    cur = 0
+    while True:
+        pressed = hub.buttons.pressed()
+        if Button.LEFT in pressed:
+            cur = (cur - 1) % len(actions)
+        if Button.RIGHT in pressed:
+            cur = (cur + 1) % len(actions)
+        if Button.CENTER in pressed:
+            hub.system.set_stop_button(Button.CENTER)
+            hub.display.icon([100,100,100,100,100,
+                              100,  0,100,  0,100,
+                              100,  0,100,  0,100,
+                              100,100,100,100,100,
+                                0,100,  0,100,  0,])
+            await actions[cur]()
+            hub.system.set_stop_button(Button.BLUETOOTH)
+        hub.display.number(cur)
+        wait(10)
 
 print('-----')
 run_task(main())
