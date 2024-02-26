@@ -414,10 +414,10 @@ def between2():
 async def run() -> None:
     await hub.speaker.beep(frequency=500, duration=100)
     await hand_goto(0)
-    wait_button()
     watch: StopWatch = None
     for i, f in enumerate(actions[1:]):
         if i == 0: watch = StopWatch()
+        wait_button()
         await f()
     base.stop()
     base.reset()
@@ -464,11 +464,11 @@ async def main():
                 prev = True
         elif Button.CENTER in pressed:
             hub.system.set_stop_button(Button.CENTER)
-            hub.display.icon([100,100,100,100,100,
-                              100,  0,100,  0,100,
-                              100,  0,100,  0,100,
-                              100,100,100,100,100,
-                                0,100,  0,100,  0,])
+            hub.display.icon([[100,100,100,100,100,],
+                              [100,  0,100,  0,100,],
+                              [100,  0,100,  0,100,],
+                              [100,100,100,100,100,],
+                              [  0,100,  0,100,  0,],])
             await actions[cur]()
             hub.system.set_stop_button(Button.BLUETOOTH)
         else:
