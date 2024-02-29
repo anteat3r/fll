@@ -8,7 +8,6 @@ from pybricks.tools import wait, StopWatch, run_task, multitask
 hub = PrimeHub()
 hand = Motor(Port.C)
 util = Motor(Port.D)
-# belt = Motor(Port.C)
 left = Motor(Port.A, positive_direction=Direction.COUNTERCLOCKWISE)
 right = Motor(Port.E)
 base = DriveBase(
@@ -34,8 +33,15 @@ async def hand_goto(ang, speed=10000, wait=True):
         hand.run_angle(speed, - ang - hang, wait=False)
 
 def wait_button():
-    while Button.LEFT not in hub.buttons.pressed():
-        pass
+    pressed = [True]
+    while any(pressed):
+        pressed = hub.buttons.pressed()
+    while True:
+        pressed = hub.buttons.pressed()
+        if Button.CENTER in pressed:
+            return False
+        if Button.LEFT in pressed:
+            return True
 
 def wait_button2():
     while Button.RIGHT not in hub.buttons.pressed():
@@ -108,10 +114,11 @@ async def volume():
 
 async def dragon():
     await hand_goto(190, wait=False)
-    await base.turn(-15)
-    await base.straight(70)
-    await hand_goto(290, wait=False)
-    await base.turn(15)
+    await base.turn(-25)
+    await hand_goto(200, wait=False)
+    await base.straight(80)
+    await hand_goto(250, wait=False)
+    await base.turn(40)
     await hand_goto(0, wait=False)
     await base.straight(-100)
 
@@ -210,7 +217,7 @@ async def flower():
     await base.turn(-30)
     base.settings(straight_speed=200)
     await base.straight(85)
-    base.turn(20,wait=False)
+    await base.turn(20)
     # wait_button()
     await hand_goto(300)
     await wait(400)
@@ -243,15 +250,18 @@ async def flower():
     # await wait(500)
     # await wait(200)
     await base.straight(-30)
-    base.turn(-82,wait=False)
+
+    # press
+    base.turn(-75,wait=False)
+    await wait(200)
     await hand_goto(270)
     await hand_goto(0,wait=False)
-    await wait(200)
-    await base.turn(82)
+    await wait(300)
+    await base.turn(75)
     base.straight(30,wait=False)
     await hand_goto(300)
     await base.turn(-20)
-    await base.straight(350)
+    await base.straight(360)
     await base.turn(80)
     base.settings(straight_acceleration=400)
     await base.curve(490, -72)
@@ -320,9 +330,9 @@ async def podium():
 
 async def artist():
     base.settings(straight_speed=300, straight_acceleration=300)
-    await base.straight(-370)
-    left.run_angle(500, 60)
-    right.run_angle(100, -100,wait=False)
+    await base.straight(-360)
+    # left.run_angle(500, 60)
+    right.run_angle(100, -20,wait=False)
     await util.run_angle(1000, 3600)
     # wait_button()
     await base.turn(-5)
@@ -362,33 +372,46 @@ async def new_film_delivery():
 
 async def delivery():
     await hand_goto(270)
+    hub.display.icon([[  0,  0,  0,  0,  0,],
+                        [  0,100,100,100,  0,],
+                        [  0,  0,100,  0,  0,],
+                        [  0,  0,100,  0,  0,],
+                        [100,100,100,100,100,],])
     wait_button()
+    hub.display.icon([[100,100,100,100,100,],
+                        [100,  0,100,  0,100,],
+                        [100,  0,100,  0,100,],
+                        [100,100,100,100,100,],
+                        [  0,100,  0,100,  0,],])
     base.settings(straight_acceleration=800)
     await base.turn(3)
-    await base.straight(450)
-    await base.straight(-30)
+    await base.straight(420)
+    await hand_goto(240)
+    await base.straight(-40)
     await base.turn(20)
-    await hand_goto(250)
-    base.settings(straight_acceleration=300)
+    await base.straight(40)
+    base.settings(straight_acceleration=300,straight_speed=500)
     await base.curve(400, 80,then=Stop.NONE)
     # wait_button()
+    # await hand_goto(250,wait=False)
     await base.curve(150, -67)
-    await base.straight(80)
+    # await base.straight(50)
     await hand_goto(270)
-    base.settings(straight_acceleration=1000)
-    await base.straight(-280)
+    # await hand_goto(270)
+    base.settings(straight_acceleration=1000,straight_speed=1000)
+    await base.straight(-200)
 
     # await base.straight(-40)
     # await hand_goto(300)
     # await base.straight(-160)
 
     await base.turn(-80)
-    await base.straight(290)
+    await base.straight(300)
     await hand_goto(0)
     await base.straight(-80)
     await base.turn(160)
-    base.settings(straight_speed=600)
-    await base.curve(740, -85)
+    base.settings(straight_speed=1000,straight_acceleration=600)
+    await base.curve(760, -84)
     base.settings(straight_speed=1000)
     # await base.turn(-55)
     # await base.straight(50)
@@ -417,10 +440,21 @@ async def run() -> None:
     await hub.speaker.beep(frequency=500, duration=100)
     await hand_goto(0)
     watch: StopWatch = None
-    for i, f in enumerate(actions[1:]):
+    for i, f in enumerate(actions[1:-1]):
         if i == 0: watch = StopWatch()
+        hub.display.icon([[  0,  0,  0,  0,  0,],
+                          [  0,100,100,100,  0,],
+                          [  0,  0,100,  0,  0,],
+                          [  0,  0,100,  0,  0,],
+                          [100,100,100,100,100,],])
         wait_button()
+        hub.display.icon([[100,100,100,100,100,],
+                          [100,  0,100,  0,100,],
+                          [100,  0,100,  0,100,],
+                          [100,100,100,100,100,],
+                          [  0,100,  0,100,  0,],])
         await f()
+        base.stop()
     base.stop()
     base.reset()
     end = watch.time()
@@ -434,6 +468,20 @@ async def run() -> None:
         pressed = hub.buttons.pressed()
         await wait(10)
 
+def calib():
+    while True:
+        pressed = hub.buttons.pressed()
+        if Button.LEFT in pressed:
+            await hand_goto(0)
+        if Button.RIGHT in pressed:
+            await hand_goto(300)
+        if Button.CENTER in pressed:
+            pressed = [True]
+            while any(pressed):
+                pressed = hub.buttons.pressed()
+                await wait(10)
+            break
+
 actions = [
     run,
     boat,
@@ -444,9 +492,11 @@ actions = [
     skater,
     skater2,
     camera,
+    podium,
     artist,
     film_delivery,
     delivery,
+    calib,
 ]
 icons = [
 
@@ -474,23 +524,23 @@ icons = [
     [100,  0,100,  0,  0,],
     [  0,  0,100,  0,  0,],],
 
-   [[  0,100,  0,100,100,],
+   [[  0,  0,  0,  0,  0,],
+    [  0,100,  0,100,  0,],
     [100,100,100,100,100,],
-    [100,  0,  0,  0,100,],
-    [  0,  0,  0,100,100,],
+    [  0,  0,  0,  0,100,],
     [100,100,100,100,100,],],
 
    [[  0,100,100,100,  0,],
-    [100,100,  0,100,100,],
-    [100,  0,100,  0,100,],
-    [100,100,  0,100,100,],
-    [  0,100,100,100,  0,],],
+    [  0,100,  0,100,  0,],
+    [  0,100,100,100,  0,],
+    [  0,  0,100,  0,  0,],
+    [  0,  0,100,100,  0,],],
 
    [[  0,  0,100,  0,  0,],
     [100,100,100,100,100,],
     [  0,100,100,100,  0,],
-    [  0,100,  0,100,  0,],
-    [100,100,100,100,100,],],
+    [  0,100,100,100,  0,],
+    [  0,100,  0,100,  0,],],
 
    [[  0,  0,100,100,  0,],
     [  0,  0,100,  0,  0,],
@@ -498,10 +548,16 @@ icons = [
     [  0,100,100,100,  0,],
     [  0,100,  0,100,  0,],],
 
-   [[  0,  0,  0,100,  0,],
-    [100,100,100,100,100,],
+   [[  0,  0,  0,  0,  0,],
     [100,  0,  0,  0,100,],
-    [100,  0,100,  0,100,],
+    [100,100,100,100,100,],
+    [100,100,100,100,100,],
+    [  0,100,  0,100,  0,],],
+
+   [[  0,  0,  0,  0,100,],
+    [  0,  0,100,  0,100,],
+    [  0,100,  0,100,  0,],
+    [  0,100,100,100,  0,],
     [100,100,100,100,100,],],
 
    [[  0,  0,  0,  0,  0,],
@@ -511,22 +567,30 @@ icons = [
     [  0,  0,  0,  0,  0,],],
 
    [[  0,  0,100,100,100,],
-    [  0,100,100,  0,  0,],
     [100,100,  0,  0,  0,],
+    [100,100,100,100,100,],
     [100,100,100,100,100,],
     [100,100,100,100,100,],],
 
-   [[  0,  0,100,  0,  0,],
-    [  0,100,100,100,  0,],
-    [  0,  0,100,  0,  0,],
-    [  0,100,100,100,  0,],
+   [[  0,100,100,100,  0,],
+    [100,  0,  0,  0,100,],
+    [100,100,100,100,100,],
+    [100,  0,100,  0,100,],
     [  0,100,100,100,  0,],],
 
+   [[100,  0,  0,  0,  0,],
+    [  0,100,  0,  0,  0,],
+    [  0,  0,100,  0,  0,],
+    [  0,  0,  0,100,  0,],
+    [  0,  0,  0,  0,100,],],
 ]
 
 async def main():
+    await hand_goto(0)
+    print(hub.battery.voltage())
     hub.system.set_stop_button(Button.BLUETOOTH)
-    cur = 0
+    await hub.speaker.beep(frequency=500, duration=100)
+    cur = 10
     prev = False
     while True:
         pressed = hub.buttons.pressed()
@@ -539,18 +603,26 @@ async def main():
                 cur = (cur + 1) % len(actions)
                 prev = True
         elif Button.CENTER in pressed:
-            press = []
+            press = [True]
             while any(press):
                 press = hub.buttons.pressed()
                 await wait(10)
-            # hub.system.set_stop_button(Button.CENTER)
+            if cur not in [0,13]:
+                hub.display.icon([[  0,  0,  0,  0,  0,],
+                                [  0,100,100,100,  0,],
+                                [  0,  0,100,  0,  0,],
+                                [  0,  0,100,  0,  0,],
+                                [100,100,100,100,100,],])
+                wait_button()
             hub.display.icon([[100,100,100,100,100,],
                               [100,  0,100,  0,100,],
                               [100,  0,100,  0,100,],
                               [100,100,100,100,100,],
                               [  0,100,  0,100,  0,],])
             await actions[cur]()
-            # hub.system.set_stop_button(Button.BLUETOOTH)
+            base.stop()
+            hand.stop()
+            util.stop()
         else:
             prev = False
         hub.display.icon(icons[cur])
