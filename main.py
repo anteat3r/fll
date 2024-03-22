@@ -82,9 +82,10 @@ async def boat():
         await wait(250)
     await hand_goto(0, wait=False)
     base.turn(30, wait=False)
-    await wait(600)
-    with NoGyro():
-        await base.straight(-300)
+    await wait(500)
+    with BaseContext(ss=1000):
+        with NoGyro():
+            await base.straight(-300)
 
 async def tower():
     await hand_goto(0)
@@ -94,7 +95,7 @@ async def tower():
     await wait(6000)
     base.turn(10,then=Stop.NONE)
     with NoGyro():
-        await base.straight(680)
+        await base.straight(730)
 
 async def volume():
     with BaseContext(sa=600):
@@ -103,30 +104,30 @@ async def volume():
         await wait(1000)
         await hand_goto(270)
         with BaseContext(ss=270):
-            base.straight(48, wait=False)
+            base.straight(53, wait=False)
         await hand_goto(180, speed=200)
-        await base.straight(15)
-        with BaseContext(tr=30):
-            await base.turn(30,then=Stop.NONE)
-        with BaseContext(tr=90):
-            await hand_goto(0, wait=False)
-            await base.turn(30,then=Stop.NONE)
-            await base.straight(110)
-        with BaseContext(tr=500):
-            await base.turn(-60)
-            base.straight(20,wait=False)
-            cnt = 0
+    await base.straight(15)
+    with BaseContext(tr=30):
+        await base.turn(30,then=Stop.NONE)
+    with BaseContext(tr=90):
+        await hand_goto(0, wait=False)
+        await base.turn(30,then=Stop.NONE)
+        await base.straight(110)
+    with BaseContext(tr=500):
+        await base.turn(-60)
+        base.straight(20,wait=False)
+        cnt = 0
+        await hand_goto(270)
+        while hub.imu.tilt()[1] < -5 and cnt < 2:
+            await hand_goto(0)
+            await base.turn(5)
+            cnt += 1
             await hand_goto(270)
-            while hub.imu.tilt()[1] < -5 and cnt < 2:
-                await hand_goto(0)
-                await base.turn(5)
-                cnt += 1
-                await hand_goto(270)
-            await base.turn(10)
+        await base.turn(10)
     with NoGyro():
         base.straight(-550,then=Stop.COAST,wait=False)
-    await wait(1200)
-    await hand_goto(0)
+        await wait(1200)
+        await hand_goto(0)
 
 async def dragon():
     await hand_goto(190, wait=False)
@@ -186,9 +187,10 @@ async def flower():
             await hand_goto(300)
             await base.turn(90)
         with NoGyro():
-            base.straight(700,wait=False)
-    await wait(300)
-    await hand_goto(0)
+            with BaseContext(sa=1000):
+                base.straight(700,wait=False)
+                await wait(300)
+                await hand_goto(0)
 
 async def skater():
     base.straight(250,wait=False)
